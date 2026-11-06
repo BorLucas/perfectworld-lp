@@ -1,0 +1,470 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/logo.png';
+import heroBg from '../assets/hero-bg.jpg';
+import ceifador from '../assets/ceifador.png';
+import classes from '../assets/classes.png';
+import gold from '../assets/gold.png';
+import news1 from '../assets/news1.png';
+import news2 from '../assets/news2.png';
+import news3 from '../assets/news3.png';
+import heroi from '../assets/heroi.png';
+import passos from '../assets/passos.png';
+import jogabilidade from '../assets/jogabilidade.png';
+import guiaVoltando from '../assets/guia-voltando.jpg';
+import guiaFantasia from '../assets/guia-fantasia.jpg';
+import guiaGravuras from '../assets/guia-gravuras.jpg';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const PW = 'https://perfectworld.com.br';
+const NEWS = 'https://levelup.com.br/perfectworld/noticias';
+const HYPE = 'https://hype.games/br/perfect-world?utm_source=perfectworld&utm_medium=button';
+const DISCORD = 'https://discord.gg/gSVQaes';
+
+const nav = [
+  { label: 'Novidades', href: '#novidades' },
+  { label: 'Calendário', href: '#calendario' },
+  { label: 'O Jogo', href: '#o-jogo' },
+  { label: 'Guias', href: '#guias' },
+  { label: 'Classes', href: '#classes' },
+  { label: 'Episódios', href: `${PW}/episodios` },
+  { label: 'Discord', href: DISCORD },
+];
+
+const news = [
+  { tag: 'Promoções', title: 'Promoção Relâmpago - 10/10', when: 'há 5 dias', img: news1, href: `${NEWS}/promocoes/promocao-relampago-10-10` },
+  { tag: 'Promoções', title: 'Mais itens permanentes estão chegando!', when: 'há 5 dias', img: news2, href: `${NEWS}/promocoes/mais-itens-permanentes-estao-chegando` },
+  { tag: 'Eventos', title: 'Eventos de Outubro 2026', when: 'há 1 semana', img: news3, href: `${NEWS}/eventos/eventos-de-outubro-2026` },
+  { tag: 'Promoções', title: 'Novidades na loja - 30/09', when: 'há 1 semana', img: news2, href: `${NEWS}/promocoes/novidades-na-loja-30-09` },
+];
+
+const game = [
+  { title: 'Criando seu Herói', text: 'Escolha entre seis raças e dezenas de classes e monte o herói que vai marcar seu nome em Pan Gu.', img: heroi, href: `${PW}/o-jogo/criando-seu-heroi` },
+  { title: 'Primeiros Passos', text: 'Missões, mapas e dicas para sair da vila e chegar ao nível máximo sem se perder no caminho.', img: passos, href: `${PW}/o-jogo/primeiros-passos` },
+  { title: 'Jogabilidade', text: 'Voo livre, cultivo, guerras territoriais e PvP: tudo o que faz de Perfect World um clássico.', img: jogabilidade, href: `${PW}/o-jogo/jogabilidade` },
+];
+
+const guides = [
+  { title: 'Voltando a Jogar', text: 'Saiu do PW há muito tempo? Saiba por onde recomeçar sua jornada e o que mudou desde a última vez que você voou por Pan Gu.', img: guiaVoltando, href: `${PW}/guias/voltando-a-jogar` },
+  { title: 'Mundo da Fantasia', text: 'No magnífico Mundo da Fantasia, um parque de diversões comandado pelo simpático Tremolo, o Tigre, você tem a oportunidade perfeita para relaxar ao lado de seus amigos depois de um longo dia de caçada.', img: guiaFantasia, href: `${PW}/guias/mundo-da-fantasia` },
+  { title: 'Sistema de Gravuras', text: 'Quanto mais status, melhor! Com o Sistema de Gravuras você adiciona uma grande variedade de status em anéis, amuletos, ornamentos, mantas e elmos.', img: guiaGravuras, href: `${PW}/guias/sistema-de-gravuras` },
+];
+
+// ponytail: eventos semanais fixos de exemplo; trocar por dados reais (JSON/CMS) quando houver
+const weekly: Record<number, { name: string; kind: string }[]> = {
+  0: [{ name: 'Guerra Territorial', kind: 'pvp' }],
+  1: [{ name: 'Arena de Equipes', kind: 'pvp' }],
+  2: [{ name: 'Céu Celestial', kind: 'pve' }],
+  3: [{ name: 'Caça ao Tesouro', kind: 'pve' }],
+  4: [{ name: 'Arena de Equipes', kind: 'pvp' }],
+  5: [{ name: 'EXP em dobro', kind: 'bonus' }],
+  6: [{ name: 'EXP em dobro', kind: 'bonus' }, { name: 'Guerra Territorial', kind: 'pvp' }],
+};
+const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+const year = now.getFullYear();
+const month = now.getMonth();
+const today = now.getDate();
+const monthName = now.toLocaleString('pt-BR', { month: 'long' });
+const daysInMonth = new Date(year, month + 1, 0).getDate();
+const offset = new Date(year, month, 1).getDay();
+const cells = [
+  ...Array.from({ length: offset }, () => null),
+  ...Array.from({ length: daysInMonth }, (_, i) => {
+    const day = i + 1;
+    const events = [...weekly[new Date(year, month, day).getDay()]];
+    if (day === 1 || day === 15) events.unshift({ name: 'Novidades na loja', kind: 'loja' });
+    return { day, events };
+  }),
+];
+
+const footer = [
+  { title: 'Novidades', links: [['Todas', `${PW}/novidades/todas`], ['Comunicados', `${PW}/novidades/comunicados`], ['Promoções', `${PW}/novidades/promocoes`], ['Eventos', `${PW}/novidades/eventos`], ['Notas de Atualização', `${PW}/novidades/notas-de-atualizacao`]] },
+  { title: 'O Jogo', links: [['Personagens', `${PW}/o-jogo/personagens`], ['Primeiros Passos', `${PW}/o-jogo/primeiros-passos`], ['Jogabilidade', `${PW}/o-jogo/jogabilidade`], ['Episódios', `${PW}/episodios`]] },
+  { title: 'Guias', links: [['Forje um arsenal R8', `${PW}/guias/equipamentos-r8`], ['Sistema de Moradias', `${PW}/guias/sistema-de-moradias`], ['Refino de Equipamentos', `${PW}/guias/refino-de-equipamentos`], ['Como ganhar moedas?', `${PW}/guias/como-ganhar-moedas`], ['Veja mais guias', `${PW}/guias`]] },
+  { title: 'Suporte', links: [['Requisitos do sistema', `${PW}/suporte/requisitos-do-sistema`], ['Regras de conduta', `${PW}/suporte/regras-de-conduta`], ['Tabela de punições', `${PW}/suporte/tabela-de-punicoes`], ['Fale conosco', 'https://suporteperfectworld.zendesk.com/'], ['Política de privacidade', 'http://levelupgames.com.br/levelup/empresa/politica-de-privacidade.lhtml']] },
+];
+
+const social = [
+  ['Facebook', 'https://www.facebook.com/PerfectWorldLU/'],
+  ['YouTube', 'https://www.youtube.com/channel/UCdLEXFz0y6RJXS6ae0-UinA'],
+  ['Instagram', 'https://www.instagram.com/levelup'],
+  ['Twitch', 'https://www.twitch.tv/levelupbr'],
+  ['X', 'https://twitter.com/levelup'],
+  ['Discord', DISCORD],
+];
+---
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Perfect World – MMORPG gratuito! | Level Up</title>
+  <meta name="description" content="Perfect World é um MMORPG em que a ação nunca para! Crie amizades duradouras, participe de aventuras inesquecíveis e eternize seu nome no reino de Pan Gu." />
+  <meta name="robots" content="noindex" />
+  <meta property="og:title" content="Perfect World – MMORPG gratuito!" />
+  <meta property="og:image" content={`${base}/share.jpg`} />
+  <link rel="icon" href={`${base}/favicon.png`} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Kanit:wght@300;400;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="wrap">
+      <a href="https://levelupgames.com.br" target="_blank" rel="noopener" class="lu">LEVEL<b>UP</b></a>
+      <nav>
+        <a href="http://minhaconta.levelupgames.com.br" target="_blank" rel="noopener">Minha conta</a>
+        <a href={HYPE} target="_blank" rel="noopener">Loja</a>
+        <a href="https://suporteperfectworld.zendesk.com/" target="_blank" rel="noopener">Suporte</a>
+      </nav>
+    </div>
+  </div>
+
+  <header class="hero">
+    <Image src={heroBg} alt="" class="hero-bg" widths={[1400, 2800]} sizes="100vw" loading="eager" />
+    <div class="hero-glow"></div>
+    <div class="wrap hero-inner">
+      <div class="hero-copy">
+        <h1><Image src={logo} alt="Perfect World" width={356} loading="eager" /></h1>
+        <p class="tagline">O MMORPG em que a ação nunca para. Voe por Pan Gu, forme seu clã e eternize seu nome.</p>
+        <div class="ctas">
+          <a class="btn btn-primary" href={`${PW}/jogue-de-graca`}>
+            <strong>Jogue de graça!</strong><small>Crie sua conta aqui</small>
+          </a>
+          <a class="btn btn-gold" href={HYPE} target="_blank" rel="noopener">Compre no Hype</a>
+          <a class="btn btn-ghost" href={`${PW}/download`}>Download</a>
+        </div>
+      </div>
+      <Image src={ceifador} alt="Ceifador, personagem de Perfect World" class="hero-char" width={842} loading="eager" />
+    </div>
+  </header>
+
+  <nav class="menu" aria-label="Principal">
+    <div class="wrap">
+      <a href="#" class="home" aria-label="Topo">PW</a>
+      <input type="checkbox" id="menu-toggle" />
+      <label for="menu-toggle" class="menu-btn">Menu</label>
+      <ul>
+        {nav.map((n) => <li><a href={n.href} target={n.href.startsWith('#') ? undefined : '_blank'} rel="noopener">{n.label}</a></li>)}
+      </ul>
+      <a class="btn btn-primary btn-sm" href={`${PW}/jogue-de-graca`}>Jogar</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="novidades" class="wrap">
+      <h2>Novidades</h2>
+      <div class="news">
+        <a class="news-top card" href={news[0].href} target="_blank" rel="noopener">
+          <Image src={news[0].img} alt="" widths={[700, 1400]} sizes="(min-width: 900px) 60vw, 100vw" />
+          <div class="news-info">
+            <span class="tag">{news[0].tag}</span>
+            <h3>{news[0].title}</h3>
+          </div>
+        </a>
+        <ul class="news-list">
+          {news.slice(1).map((n) => (
+            <li>
+              <a class="card" href={n.href} target="_blank" rel="noopener">
+                <Image src={n.img} alt="" width={360} />
+                <div>
+                  <span class={`tag tag-${n.tag === 'Eventos' ? 'event' : 'promo'}`}>{n.tag}</span>
+                  <h3>{n.title}</h3>
+                  <time>{n.when}</time>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <a class="more" href={`${PW}/novidades/todas`}>+ Ver mais novidades</a>
+    </section>
+
+    <section id="calendario" class="band">
+      <div class="wrap">
+        <h2>Calendário de eventos de <span class="accent">{monthName}</span></h2>
+        <div class="legend">
+          <span class="ev ev-pvp">PvP</span><span class="ev ev-pve">PvE</span><span class="ev ev-bonus">Bônus</span><span class="ev ev-loja">Loja</span>
+        </div>
+        <div class="cal">
+          {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((d) => <div class="cal-head">{d}</div>)}
+          {cells.map((c) =>
+            c ? (
+              <div class:list={['cal-day', { today: c.day === today, past: c.day < today }]}>
+                <b>{c.day}</b>
+                {c.events.map((e) => <span class={`ev ev-${e.kind}`}>{e.name}</span>)}
+              </div>
+            ) : (
+              <div class="cal-empty"></div>
+            )
+          )}
+        </div>
+        <p class="note">Horários seguem o horário oficial de Brasília (GMT-3).</p>
+      </div>
+    </section>
+
+    <section id="o-jogo" class="wrap">
+      <h2>O Jogo</h2>
+      <ul class="grid3">
+        {game.map((g) => (
+          <li>
+            <a class="card game" href={g.href} target="_blank" rel="noopener">
+              <Image src={g.img} alt="" width={640} />
+              <div>
+                <h3>{g.title}</h3>
+                <p>{g.text}</p>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section id="guias" class="wrap">
+      <h2>Quer saber mais sobre Perfect World?</h2>
+      <ul class="grid3">
+        {guides.map((g) => (
+          <li class="card guide">
+            <div class="guide-img">
+              <span class="tag">Tutoriais</span>
+              <Image src={g.img} alt="" width={640} />
+            </div>
+            <div class="guide-body">
+              <h3>{g.title}</h3>
+              <p>{g.text}</p>
+              <a class="btn btn-primary btn-sm" href={g.href} target="_blank" rel="noopener">+ Leia mais</a>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <a class="more" href={`${PW}/guias`}>+ Veja mais artigos</a>
+    </section>
+
+    <section id="classes" class="classes">
+      <Image src={classes} alt="As raças de Perfect World" widths={[960, 1920]} sizes="100vw" />
+      <div class="wrap classes-copy">
+        <h2>Conheça as Classes e Raças</h2>
+        <h3>Já sabe qual raça ou classe escolher?</h3>
+        <p>Humanos, Alados, Bárbaros, Espectrais, Sereianos e Tenebris: cada raça tem classes, habilidades e estilos de jogo únicos.</p>
+        <a class="btn btn-primary" href={`${PW}/o-jogo/criando-seu-heroi/sistema-de-classes-e-racas`}>Confira</a>
+      </div>
+    </section>
+
+    <section class="wrap gold">
+      <Image src={gold} alt="Pacote de 31.000 GOLD" width={400} />
+      <div>
+        <h2>Garanta já seu <span class="gold-txt">GOLD</span></h2>
+        <p>Compre GOLD com segurança no Hype e aproveite pacotes com bônus para turbinar sua aventura.</p>
+        <a class="btn btn-gold" href={HYPE} target="_blank" rel="noopener">Veja mais pacotes!</a>
+      </div>
+    </section>
+
+    <section class="band final">
+      <div class="wrap">
+        <h2>Pan Gu está esperando por você</h2>
+        <p>Crie sua conta grátis e comece hoje mesmo.</p>
+        <div class="ctas center">
+          <a class="btn btn-primary" href={`${PW}/jogue-de-graca`}><strong>Jogue de graça!</strong></a>
+          <a class="btn btn-ghost" href="https://www.youtube.com/channel/UCdLEXFz0y6RJXS6ae0-UinA" target="_blank" rel="noopener">Inscreva-se no YouTube</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <h2>Acompanhe-nos nas redes sociais</h2>
+      <ul class="social">
+        {social.map(([n, h]) => <li><a href={h} target="_blank" rel="noopener">{n}</a></li>)}
+      </ul>
+      <div class="footer-links">
+        {footer.map((col) => (
+          <div>
+            <h3>{col.title}</h3>
+            <ul>{col.links.map(([l, h]) => <li><a href={h} target="_blank" rel="noopener">{l}</a></li>)}</ul>
+          </div>
+        ))}
+      </div>
+      <div class="bottom">
+        <div class="rating"><span class="age">18</span><div><b>Classificação indicativa: 18 anos</b><br />Violência · Compras on-line</div></div>
+        <p>As datas e promoções anunciadas podem sofrer alterações sem prévio aviso.</p>
+        <p class="copy">Copyright © 2026 Level Up Interactive Ltda. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
+
+<style is:global>
+  :root {
+    --bg: #0d0b10;
+    --bg2: #16121b;
+    --card: #1d1823;
+    --line: #2d2535;
+    --text: #e9e4ee;
+    --muted: #a89fb3;
+    --red: #d7263d;
+    --red2: #ff4d63;
+    --gold: #f2b544;
+    --title: 'Cinzel', serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 70px; }
+  body { background: var(--bg); color: var(--text); font: 300 16px/1.6 'Kanit', system-ui, sans-serif; }
+  a { color: inherit; text-decoration: none; }
+  ul { list-style: none; }
+  img { display: block; max-width: 100%; height: auto; }
+  .wrap { width: min(1200px, 100% - 2rem); margin-inline: auto; }
+  h2 { font: 800 clamp(1.6rem, 3vw, 2.3rem)/1.2 var(--title); text-transform: uppercase; letter-spacing: .02em; margin-bottom: 1.5rem; }
+  h2::after { content: ''; display: block; width: 64px; height: 3px; margin-top: .6rem; background: linear-gradient(90deg, var(--red), var(--gold)); }
+  h3 { font-weight: 600; line-height: 1.3; }
+  main > section { padding-block: 4.5rem; }
+  .accent { color: var(--red2); }
+  .gold-txt { color: var(--gold); }
+
+  .btn { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; padding: .85rem 1.6rem; border-radius: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; transition: transform .15s, filter .15s, background .15s; text-align: center; }
+  .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+  .btn small { font-weight: 300; text-transform: none; letter-spacing: 0; opacity: .9; }
+  .btn-primary { background: linear-gradient(180deg, var(--red2), var(--red)); color: #fff; box-shadow: 0 6px 20px #d7263d55; }
+  .btn-gold { background: linear-gradient(180deg, #ffd27a, var(--gold)); color: #2a1a00; }
+  .btn-ghost { border: 1px solid #ffffff55; color: #fff; background: #ffffff0d; }
+  .btn-ghost:hover { background: #ffffff1f; }
+  .btn-sm { padding: .5rem 1rem; font-size: .85rem; }
+
+  .topbar { background: #000; font-size: .85rem; }
+  .topbar .wrap { display: flex; justify-content: space-between; align-items: center; height: 36px; }
+  .lu { font-weight: 300; letter-spacing: .1em; }
+  .lu b { color: var(--gold); }
+  .topbar nav { display: flex; gap: 1.25rem; color: var(--muted); }
+  .topbar nav a:hover { color: #fff; }
+
+  .hero { position: relative; overflow: hidden; background: #2a0006; }
+  .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .hero-glow { position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 40%, transparent 30%, #0d0b10cc 85%), linear-gradient(180deg, transparent 60%, var(--bg)); }
+  .hero-inner { position: relative; display: grid; grid-template-columns: 1fr 1.1fr; align-items: end; min-height: 520px; }
+  .hero-copy { padding-block: 3rem 4rem; }
+  .hero-copy h1 img { width: min(320px, 80%); filter: drop-shadow(0 6px 20px #000a); }
+  .tagline { margin: 1rem 0 1.75rem; font-size: 1.15rem; max-width: 30ch; color: #f3e6e8; }
+  .ctas { display: flex; flex-wrap: wrap; gap: .75rem; align-items: stretch; }
+  .ctas.center { justify-content: center; }
+  .hero-char { align-self: end; width: 100%; max-width: 760px; justify-self: end; mask-image: linear-gradient(180deg, transparent, #000 18%, #000 80%, transparent), linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask-composite: intersect; }
+
+  .menu { position: sticky; top: 0; z-index: 10; background: #0d0b10ee; backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .menu .wrap { display: flex; align-items: center; gap: 1rem; height: 60px; }
+  .menu .home { font: 800 1.2rem var(--title); color: var(--red2); }
+  .menu ul { display: flex; gap: .25rem; flex: 1; }
+  .menu ul a { display: block; padding: .5rem .8rem; border-radius: 4px; font-weight: 400; text-transform: uppercase; font-size: .9rem; letter-spacing: .04em; }
+  .menu ul a:hover { background: #ffffff10; color: var(--red2); }
+  #menu-toggle, .menu-btn { display: none; }
+
+  .card { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; transition: border-color .2s, transform .2s; }
+  a.card:hover, .card:hover { border-color: var(--red); transform: translateY(-3px); }
+  .card img { transition: transform .5s; }
+  .card:hover img { transform: scale(1.05); }
+  .tag { display: inline-block; padding: .15rem .6rem; border-radius: 3px; background: var(--gold); color: #2a1a00; font-size: .75rem; font-weight: 600; text-transform: uppercase; }
+  .tag-event { background: var(--red); color: #fff; }
+
+  .news { display: grid; grid-template-columns: 1.6fr 1fr; gap: 1.25rem; }
+  .news-top { position: relative; }
+  .news-top img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 7/3; }
+  .news-info { position: absolute; inset: auto 0 0; padding: 4rem 1.5rem 1.5rem; background: linear-gradient(transparent, #000d); }
+  .news-info h3 { font-size: 1.6rem; margin-top: .5rem; }
+  .news-list { display: grid; gap: 1.25rem; }
+  .news-list .card { display: grid; grid-template-columns: 140px 1fr; gap: 1rem; align-items: center; height: 100%; }
+  .news-list img { width: 140px; height: 100%; object-fit: cover; }
+  .news-list h3 { font-size: 1rem; margin: .35rem 0 .15rem; }
+  .news-list time { color: var(--muted); font-size: .85rem; }
+  .more { display: inline-block; margin-top: 1.5rem; color: var(--red2); font-weight: 600; }
+  .more:hover { text-decoration: underline; }
+
+  .band { background: var(--bg2); border-block: 1px solid var(--line); }
+  .legend { display: flex; gap: .5rem; margin-bottom: 1rem; }
+  .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .cal-head { text-align: center; font-weight: 600; color: var(--muted); text-transform: uppercase; font-size: .8rem; padding-bottom: .25rem; }
+  .cal-day { min-height: 104px; padding: .5rem; background: var(--card); border: 1px solid var(--line); border-radius: 6px; display: flex; flex-direction: column; gap: 4px; }
+  .cal-day b { font-size: 1.1rem; }
+  .cal-day.past { opacity: .45; }
+  .cal-day.today { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 0 20px #f2b54433; }
+  .ev { display: block; padding: 2px 6px; border-radius: 3px; font-size: .72rem; line-height: 1.3; border-left: 3px solid; background: #ffffff0a; }
+  .legend .ev { display: inline-block; }
+  .ev-pvp { border-color: var(--red2); }
+  .ev-pve { border-color: #5ab0ff; }
+  .ev-bonus { border-color: #6be28a; }
+  .ev-loja { border-color: var(--gold); }
+  .note { margin-top: 1rem; color: var(--muted); font-size: .9rem; }
+
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .game { position: relative; height: 100%; }
+  .game img { aspect-ratio: 16/9; object-fit: cover; width: 100%; }
+  .game div, .guide-body { padding: 1.25rem; }
+  .game h3, .guide h3 { font: 600 1.25rem var(--title); margin-bottom: .5rem; }
+  .game p, .guide p { color: var(--muted); }
+  .guide { display: flex; flex-direction: column; }
+  .guide-img { position: relative; overflow: hidden; }
+  .guide-img .tag { position: absolute; z-index: 1; top: .75rem; left: .75rem; background: #5ab0ff; color: #001a33; }
+  .guide-img img { aspect-ratio: 821/424; object-fit: cover; width: 100%; }
+  .guide-body { display: flex; flex-direction: column; flex: 1; gap: .25rem; }
+  .guide-body .btn { margin-top: auto; align-self: flex-start; }
+  .guide-body p { margin-bottom: 1rem; }
+
+  .classes { position: relative; padding: 0 !important; overflow: hidden; }
+  .classes > img { width: 100%; min-height: 420px; object-fit: cover; }
+  .classes::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #0d0b10f2 0%, #0d0b10aa 40%, transparent 70%), linear-gradient(180deg, var(--bg), transparent 15%, transparent 85%, var(--bg)); }
+  .classes-copy { position: absolute; z-index: 1; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+  .classes-copy > * { max-width: 460px; }
+  .classes-copy h3 { font-size: 1.3rem; color: var(--gold); margin-bottom: .5rem; }
+  .classes-copy p { margin-bottom: 1.5rem; }
+
+  .gold { display: grid; grid-template-columns: 320px 1fr; gap: 3rem; align-items: center; }
+  .gold img { filter: drop-shadow(0 10px 40px #f2b54455); }
+  .gold p { color: var(--muted); max-width: 50ch; margin-bottom: 1.5rem; }
+
+  .final { text-align: center; background: radial-gradient(ellipse at center, #3a0710, var(--bg2) 70%); }
+  .final h2::after { margin-inline: auto; }
+  .final p { margin-bottom: 1.5rem; color: var(--muted); }
+
+  footer { background: #000; padding: 3.5rem 0 2rem; font-size: .9rem; }
+  footer h2 { font-size: 1.2rem; }
+  .social { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 2.5rem; }
+  .social a { display: block; padding: .5rem 1rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
+  .social a:hover { border-color: var(--red); color: #fff; }
+  .footer-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--line); }
+  .footer-links h3 { color: #fff; margin-bottom: .75rem; text-transform: uppercase; font-size: .9rem; letter-spacing: .05em; }
+  .footer-links li { margin-bottom: .35rem; color: var(--muted); }
+  .footer-links a:hover { color: var(--red2); }
+  .bottom { padding-top: 2rem; color: var(--muted); display: grid; gap: .75rem; }
+  .rating { display: flex; gap: .75rem; align-items: center; font-size: .8rem; }
+  .age { display: grid; place-items: center; width: 42px; height: 42px; background: #000; border: 2px solid #fff; color: #fff; font-weight: 600; font-size: 1.2rem; border-radius: 4px; }
+  .copy { color: #6f6779; }
+
+  @media (max-width: 900px) {
+    .hero-inner { grid-template-columns: 1fr; min-height: 0; }
+    .hero-copy { padding-bottom: 0; text-align: center; }
+    .hero-copy h1 img, .tagline { margin-inline: auto; }
+    .ctas { justify-content: center; }
+    .hero-char { justify-self: center; margin-top: 1rem; }
+    .menu-btn { display: block; margin-left: auto; cursor: pointer; padding: .5rem .8rem; border: 1px solid var(--line); border-radius: 4px; text-transform: uppercase; font-size: .85rem; }
+    .menu ul { display: none; position: absolute; top: 60px; left: 0; right: 0; flex-direction: column; background: var(--bg); border-bottom: 1px solid var(--line); padding: .5rem 1rem 1rem; }
+    #menu-toggle:checked ~ ul { display: flex; }
+    .news, .grid3, .gold { grid-template-columns: 1fr; }
+    .gold img { max-width: 240px; margin-inline: auto; }
+    .footer-links { grid-template-columns: repeat(2, 1fr); }
+    .cal { gap: 3px; }
+    .cal-day { min-height: 64px; padding: .3rem; }
+    .cal-day .ev { font-size: 0; padding: 0; height: 4px; border-left: 0; }
+    .cal-day .ev-pvp { background: var(--red2); }
+    .cal-day .ev-pve { background: #5ab0ff; }
+    .cal-day .ev-bonus { background: #6be28a; }
+    .cal-day .ev-loja { background: var(--gold); }
+    .classes > img { min-height: 560px; object-position: 70% center; }
+    .classes::after { background: linear-gradient(180deg, var(--bg), #0d0b10aa 30%, #0d0b10f2 70%); }
+    .classes-copy { justify-content: flex-end; padding-bottom: 2.5rem; }
+  }
+  @media (max-width: 560px) {
+    .topbar nav { gap: .75rem; }
+    .menu .btn-sm { display: none; }
+    .news-list .card { grid-template-columns: 100px 1fr; }
+    .news-list img { width: 100px; }
+    .news-info h3 { font-size: 1.15rem; }
+  }
+</style>
